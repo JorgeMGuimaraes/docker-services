@@ -1,0 +1,24 @@
+---
+#----------------------------------------------------------------------------#
+# Homepage
+# https://github.com/benphelps/homepage
+# https://gethomepage.dev/en/installation/docker/
+# make config directory before run compose
+#----------------------------------------------------------------------------#
+version: '3.9'
+
+services:
+  homepage:
+    image: "ghcr.io/benphelps/homepage:${HOMEPAGE_VERSION}"
+    container_name: homepage
+    restart: unless-stopped
+    volumes:
+      - ./config:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file: .env
+    network_mode: host
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.homepage.service=homepage
+      - "traefik.http.routers.homepage.rule=Host(`krypton.viper`)"
+      - traefik.http.services.homepage.loadbalancer.server.port=3000
