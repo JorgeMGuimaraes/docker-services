@@ -1,0 +1,30 @@
+---
+#----------------------------------------------------------------------------#
+# LanhuageTools
+# https://dev.languagetool.org/http-server
+# https://hub.docker.com/r/erikvl87/languagetool
+# https://github.com/Erikvl87/docker-languagetool
+# https://dev.languagetool.org/languages
+# https://github.com/languagetool-org/languagetool
+# make ngram directory before run compose
+#----------------------------------------------------------------------------#
+version: '3.9'
+
+services:
+  languagetools:
+    image: "erikvl87/languagetool:${LTOOLS_VERSION}"
+    container_name: languagetools
+    restart: unless-stopped
+    volumes:
+      - ./ngrams:/ngrams
+    env_file: .env
+    environment:
+      - langtool_languageModel=/ngrams
+      - Java_Xms=512m
+      - Java_Xmx=1g
+    network_mode: host
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.languagetools.service=languagetools
+      - "traefik.http.routers.languagetools.rule=Host(`languagetools.services.viper`)"
+      - traefik.http.services.languagetools.loadbalancer.server.port=8010
