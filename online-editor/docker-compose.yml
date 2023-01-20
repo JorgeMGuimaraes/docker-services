@@ -1,0 +1,32 @@
+---
+#----------------------------------------------------------------------------#
+# LanhuageTools
+# https://github.com/HarrisonPeace/in-browser-markdown-editor
+# https://harrison-peace-markdown-editor.netlify.app/
+# Nginx Server
+# https://hub.docker.com/_/nginx
+# $ docker run \
+#   --name some-nginx \
+#   -v /some/content:/usr/share/nginx/html:ro \
+#   -d nginx
+# make editor-content directory before run compose
+#----------------------------------------------------------------------------#
+version: '3.9'
+
+services:
+  editor:
+    image: "nginx:${NGINX_VERSION}"
+    container_name: editor
+    restart: unless-stopped
+    volumes:
+      - ./templates:/etc/nginx/templates
+      - ./editor-content:/usr/share/nginx/html:ro
+    env_file: .env
+    environment:
+      - NGINX_PORT=8099
+    network_mode: host
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.editor.service=editor
+      - "traefik.http.routers.editor.rule=Host(`editor.services.viper`)"
+      - "traefik.http.services.editor.loadbalancer.server.port=${NGINX_ENV_PORT}"
