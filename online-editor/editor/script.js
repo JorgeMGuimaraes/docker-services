@@ -20,27 +20,18 @@ class Editor extends React.Component {
   render() {
     return /*#__PURE__*/(
       React.createElement("div", null, /*#__PURE__*/
-      React.createElement(ReactQuill, {
-        theme: this.state.theme,
-        onChange: this.handleChange,
-        value: this.state.editorHtml,
-        modules: Editor.modules,
-        formats: Editor.formats,
-        bounds: '.app',
-        placeholder: this.props.placeholder }), /*#__PURE__*/
-
-      React.createElement("div", { className: "themeSwitcher" }, /*#__PURE__*/
-      React.createElement("label", null, "Theme "), /*#__PURE__*/
-      React.createElement("select", { onChange: (e) =>
-        this.handleThemeChange(e.target.value) }, /*#__PURE__*/
-      React.createElement("option", { value: "snow" }, "Snow"), /*#__PURE__*/
-      React.createElement("option", { value: "bubble" }, "Bubble"), /*#__PURE__*/
-      React.createElement("option", { value: "core" }, "Core")))));
-
-
-
-
-  }}
+        React.createElement(ReactQuill, {
+          theme: this.state.theme,
+          onChange: this.handleChange,
+          value: this.state.editorHtml,
+          modules: Editor.modules,
+          formats: Editor.formats,
+          bounds: '.app',
+          placeholder: this.props.placeholder
+        }), /*#__PURE__*/
+      ));
+  }
+}
 
 
 /* 
@@ -49,17 +40,19 @@ class Editor extends React.Component {
  */
 Editor.modules = {
   toolbar: [
-  [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
-  [{ size: [] }],
-  ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-  [{ 'list': 'ordered' }, { 'list': 'bullet' },
-  { 'indent': '-1' }, { 'indent': '+1' }],
-  ['link', 'image', 'video'],
-  ['clean']],
+    [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+    [{ size: [] }],
+    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+    [{ 'list': 'ordered' }, { 'list': 'bullet' },
+    { 'indent': '-1' }, { 'indent': '+1' }],
+    ['link', 'image', 'video'],
+    ['clean']],
 
   clipboard: {
     // toggle to add extra line breaks when pasting HTML:
-    matchVisual: false } };
+    matchVisual: false
+  }
+};
 
 
 /* 
@@ -67,22 +60,23 @@ Editor.modules = {
  * See https://quilljs.com/docs/formats/
  */
 Editor.formats = [
-'header', 'font', 'size',
-'bold', 'italic', 'underline', 'strike', 'blockquote',
-'list', 'bullet', 'indent',
-'link', 'image', 'video'];
+  'header', 'font', 'size',
+  'bold', 'italic', 'underline', 'strike', 'blockquote',
+  'list', 'bullet', 'indent',
+  'link', 'image', 'video'];
 
 
 /* 
  * PropType validation
  */
 Editor.propTypes = {
-  placeholder: React.PropTypes.string };
+  placeholder: React.PropTypes.string
+};
 
 
 /* 
  * Render component on page
  */
 ReactDOM.render( /*#__PURE__*/
-React.createElement(Editor, { placeholder: 'Write something...' }),
-document.querySelector('.app'));
+  React.createElement(Editor, { placeholder: 'Write something...' }),
+  document.querySelector('.app'));

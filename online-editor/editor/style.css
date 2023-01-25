@@ -1,5 +1,5 @@
 body {
-  background: #f3f1f2;
+  /* background: #ffffff; */
   font-family: sans-serif;
 }
 
@@ -26,6 +26,10 @@ body {
   border-top-right-radius: 0.5em;
 }
 
+.app .ql-snow.ql-container {
+  min-height: max-content;
+}
+
 /* Bubble Theme */
 .app .ql-bubble .ql-editor {
   border: 1px solid #ccc;
@@ -39,4 +43,19 @@ body {
 .themeSwitcher {
   margin-top: 0.5em;
   font-size: small;
+}
+
+#page-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer a {
+  color: #8b8b8b;
+  font-size: 1em;
+}
+
+.footer p {
+  color: #8b8b8b;
+  font-size: 0.75em;
 }
