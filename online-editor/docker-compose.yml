@@ -9,8 +9,10 @@
 version: '3.9'
 
 services:
-  lighttpd:
+  editor:
     image: sebp/lighttpd
+    container_name: editor
+    restart: unless-stopped
     volumes:
       - ./editor:/var/www/localhost/htdocs
       - ./lighttpd:/etc/lighttpd
