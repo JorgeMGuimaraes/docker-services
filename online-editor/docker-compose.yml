@@ -1,0 +1,25 @@
+---
+#----------------------------------------------------------------------------#
+# Online Editor
+# A simple textarea so user can proofread locally.
+# Using lighttpd as web server
+# https://hub.docker.com/r/sebp/lighttpd
+# Based on Alex codepen: https://codepen.io/alexkrolick/pen/yvRgab
+#----------------------------------------------------------------------------#
+version: '3.9'
+
+services:
+  editor:
+    image: sebp/lighttpd
+    container_name: editor
+    restart: unless-stopped
+    volumes:
+      - ./editor:/var/www/localhost/htdocs
+      - ./lighttpd:/etc/lighttpd
+    tty: true
+    network_mode: host
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.editor.service=editor
+      - "traefik.http.routers.editor.rule=Host(`editor.services.viper`)"
+      - traefik.http.services.editor.loadbalancer.server.port=8099

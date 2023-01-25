@@ -1,0 +1,61 @@
+body {
+  /* background: #ffffff; */
+  font-family: sans-serif;
+}
+
+.ql-editor {
+  overflow-y: scroll;
+  resize: vertical;
+}
+
+.app {
+  margin: 1rem 4rem;
+}
+
+.app .ql-container {
+  border-bottom-left-radius: 0.5em;
+  border-bottom-right-radius: 0.5em;
+  background: #fefcfc;
+}
+
+/* Snow Theme */
+.app .ql-snow.ql-toolbar {
+  display: block;
+  background: #eaecec;
+  border-top-left-radius: 0.5em;
+  border-top-right-radius: 0.5em;
+}
+
+.app .ql-snow.ql-container {
+  min-height: max-content;
+}
+
+/* Bubble Theme */
+.app .ql-bubble .ql-editor {
+  border: 1px solid #ccc;
+  border-radius: 0.5em;
+}
+
+.app .ql-editor {
+  min-height: 18em;
+}
+
+.themeSwitcher {
+  margin-top: 0.5em;
+  font-size: small;
+}
+
+#page-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer a {
+  color: #8b8b8b;
+  font-size: 1em;
+}
+
+.footer p {
+  color: #8b8b8b;
+  font-size: 0.75em;
+}
