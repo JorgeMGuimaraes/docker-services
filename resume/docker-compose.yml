@@ -1,0 +1,76 @@
+# Based on https://mariushosting.com/how-to-install-reactive-resume-v3-on-your-synology-nas/
+
+version: "3.9"
+services:
+  resume-db:
+    image: postgres
+    container_name: RXRESUME-DB
+    hostname: resume-db
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "reresume", "-U", "reresumeuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    user: 1026:100
+    volumes:
+      - /volume1/docker/rxv3/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: reresume
+      POSTGRES_USER: reresumeuser
+      POSTGRES_PASSWORD: reresumepw
+    restart: always
+
+  resume-server:
+    image: amruthpillai/reactive-resume:server-latest
+    container_name: RXRESUME-SERVER
+    hostname: resume-server
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: curl -fSs http://localhost:3100/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    ports:
+      - 8661:3100
+    volumes:
+      - /volume1/docker/rxv3/exports:/app/server/dist/assets/exports
+      - /volume1/docker/rxv3/uploads:/app/server/dist/assets/uploads
+    environment:
+      - PUBLIC_URL=https://rxresume.yourname.synology.me
+      - PUBLIC_SERVER_URL=https://rxresumeserver.yourname.synology.me
+      - POSTGRES_DB=reresume
+      - POSTGRES_USER=reresumeuser
+      - POSTGRES_PASSWORD=reresumepw
+      - SECRET_KEY=MariushostingMariushostingMari13
+      - POSTGRES_HOST=resume-db
+      - POSTGRES_PORT=5432
+      - JWT_SECRET=MariushostingMariushostingMari13
+      - JWT_EXPIRY_TIME=604800
+    restart: always
+    depends_on:
+      resume-db:
+        condition: service_started
+
+  resume-client:
+    image: amruthpillai/reactive-resume:client-latest
+    container_name: RXRESUME-CLIENT
+    hostname: resume-client
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: curl -fSs 127.0.0.1:3000 || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    ports:
+      - 8662:3000
+    environment:
+      - PUBLIC_URL=https://rxresume.yourname.synology.me
+      - PUBLIC_SERVER_URL=https://rxresumeserver.yuorname.synology.me
+    restart: always
+    depends_on:
+      resume-server:
+        condition: service_healthy
