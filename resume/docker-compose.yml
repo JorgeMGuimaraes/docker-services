@@ -1,27 +1,32 @@
-# Based on https://mariushosting.com/how-to-install-reactive-resume-v3-on-your-synology-nas/
-
+---
+#----------------------------------------------------------------------------#
+# Reactive Resume
+# Reactive Resume is a free and open source resume builder.
+# https://github.com/AmruthPillai/Reactive-Resume
+# Compose based on Marius Hosting: https://mariushosting.com/how-to-install-reactive-resume-v3-on-your-synology-nas/
+#----------------------------------------------------------------------------#
 version: "3.9"
 services:
   resume-db:
     image: postgres
-    container_name: RXRESUME-DB
-    hostname: resume-db
+    container_name: rxresume-db
+    hostname: rxresume-db
     security_opt:
       - no-new-privileges:true
     healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "reresume", "-U", "reresumeuser"]
+      test: ["CMD", "pg_isready", "-q", "-d", "reresume", "-U", "reresumeuser"] #TODO: same as environment variables below
       interval: 10s
       timeout: 5s
       retries: 5
     user: 1026:100
     volumes:
-      - /volume1/docker/rxv3/db:/var/lib/postgresql/data
+      - ./rxv3/db:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: reresume
-      POSTGRES_USER: reresumeuser
-      POSTGRES_PASSWORD: reresumepw
+      POSTGRES_DB: reresume #TODO: move to .env
+      POSTGRES_USER: reresumeuser #TODO: move to .env
+      POSTGRES_PASSWORD: 5137e389e79b4c7b88b956bc56695c16 #TODO: move to .env
     restart: always
-
+# Reviewed up to here ^^^
   resume-server:
     image: amruthpillai/reactive-resume:server-latest
     container_name: RXRESUME-SERVER
@@ -36,8 +41,8 @@ services:
     ports:
       - 8661:3100
     volumes:
-      - /volume1/docker/rxv3/exports:/app/server/dist/assets/exports
-      - /volume1/docker/rxv3/uploads:/app/server/dist/assets/uploads
+      - ./rxv3/exports:/app/server/dist/assets/exports
+      - ./rxv3/uploads:/app/server/dist/assets/uploads
     environment:
       - PUBLIC_URL=https://rxresume.yourname.synology.me
       - PUBLIC_SERVER_URL=https://rxresumeserver.yourname.synology.me
