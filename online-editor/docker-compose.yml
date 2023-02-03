@@ -16,10 +16,14 @@ services:
     volumes:
       - ./editor:/var/www/localhost/htdocs
       - ./lighttpd:/etc/lighttpd
-    tty: true
-    network_mode: host
+    networks:
+      - web
     labels:
       - traefik.enable=true
       - traefik.http.routers.editor.service=editor
       - "traefik.http.routers.editor.rule=Host(`editor.services.viper`)"
       - traefik.http.services.editor.loadbalancer.server.port=8099
+
+networks:
+  web:
+    external: true
