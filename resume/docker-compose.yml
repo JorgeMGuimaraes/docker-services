@@ -7,75 +7,101 @@
 #----------------------------------------------------------------------------#
 version: "3.9"
 services:
-  resume-db:
-    image: postgres
-    container_name: rxresume-db
-    hostname: rxresume-db
-    security_opt:
-      - no-new-privileges:true
-    healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "reresume", "-U", "reresumeuser"] #TODO: same as environment variables below
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    user: 1026:100
-    volumes:
-      - ./rxv3/db:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: reresume #TODO: move to .env
-      POSTGRES_USER: reresumeuser #TODO: move to .env
-      POSTGRES_PASSWORD: 5137e389e79b4c7b88b956bc56695c16 #TODO: move to .env
+  postgres:
+    image: postgres:alpine
+    container_name: postgres
+    hostname: postgres
     restart: always
-# Reviewed up to here ^^^
-  resume-server:
-    image: amruthpillai/reactive-resume:server-latest
-    container_name: RXRESUME-SERVER
-    hostname: resume-server
-    security_opt:
-      - no-new-privileges:true
-    healthcheck:
-      test: curl -fSs http://localhost:3100/health || exit 1
-      interval: 30s
-      timeout: 5s
-      retries: 3
     ports:
-      - 8661:3100
+      - 5432:5432
+    expose:
+      - 5432
     volumes:
-      - ./rxv3/exports:/app/server/dist/assets/exports
-      - ./rxv3/uploads:/app/server/dist/assets/uploads
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      start_period: 15s
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    network_mode: host
+    env_file: .env
     environment:
-      - PUBLIC_URL=https://rxresume.yourname.synology.me
-      - PUBLIC_SERVER_URL=https://rxresumeserver.yourname.synology.me
-      - POSTGRES_DB=reresume
-      - POSTGRES_USER=reresumeuser
-      - POSTGRES_PASSWORD=reresumepw
-      - SECRET_KEY=MariushostingMariushostingMari13
-      - POSTGRES_HOST=resume-db
-      - POSTGRES_PORT=5432
-      - JWT_SECRET=MariushostingMariushostingMari13
-      - JWT_EXPIRY_TIME=604800
-    restart: always
-    depends_on:
-      resume-db:
-        condition: service_started
+      - POSTGRES_DB=$POSTGRES_DB
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 
-  resume-client:
-    image: amruthpillai/reactive-resume:client-latest
-    container_name: RXRESUME-CLIENT
-    hostname: resume-client
-    security_opt:
-      - no-new-privileges:true
-    healthcheck:
-      test: curl -fSs 127.0.0.1:3000 || exit 1
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    ports:
-      - 8662:3000
-    environment:
-      - PUBLIC_URL=https://rxresume.yourname.synology.me
-      - PUBLIC_SERVER_URL=https://rxresumeserver.yuorname.synology.me
+  server:
+    image: amruthpillai/reactive-resume:server-latest
+    # build:
+    #   context: .
+    #   dockerfile: ./server/Dockerfile
+    container_name: server
     restart: always
+    ports:
+      - 3100:3100
+    expose:
+      - 3100
     depends_on:
-      resume-server:
-        condition: service_healthy
+      - postgres
+    env_file: .env
+    network_mode: host
+    environment:
+      - PUBLIC_URL=$PUBLIC_URL
+      - PUBLIC_SERVER_URL=http://localhost:3100
+      - PUBLIC_GOOGLE_CLIENT_ID=
+      - POSTGRES_DB=$POSTGRES_DB
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - SECRET_KEY=$SECRET_KEY
+      - POSTGRES_HOST=$POSTGRES_HOST
+      - POSTGRES_PORT=$POSTGRES_PORT
+      - POSTGRES_SSL_CERT=$POSTGRES_SSL_CERT
+      - JWT_SECRET=$JWT_SECRET
+      - JWT_EXPIRY_TIME=$JWT_EXPIRY_TIME
+      - GOOGLE_CLIENT_SECRET=
+      - GOOGLE_API_KEY=
+      - MAIL_FROM_NAME=$MAIL_FROM_NAME
+      - MAIL_FROM_EMAIL=$MAIL_FROM_EMAIL
+      - MAIL_HOST=
+      - MAIL_PORT=
+      - MAIL_USERNAME=
+      - MAIL_PASSWORD=
+      - STORAGE_BUCKET=
+      - STORAGE_REGION=
+      - STORAGE_ENDPOINT=
+      - STORAGE_URL_PREFIX=
+      - STORAGE_ACCESS_KEY=
+      - STORAGE_SECRET_KEY=
+      - PDF_DELETION_TIME=$PDF_DELETION_TIME
+      - TZ=$TZ
+
+  client:
+    image: amruthpillai/reactive-resume:client-latest
+    # build:
+    #   context: .
+    #   dockerfile: ./client/Dockerfile
+    container_name: client
+    restart: always
+    # ports:
+    #   - 9000:3000
+    # expose:
+    #   - 9000
+    depends_on:
+      - server
+    env_file: .env
+    network_mode: host
+    environment:
+      - PORT=3300
+      - PUBLIC_URL=$PUBLIC_URL
+      - PUBLIC_SERVER_URL=http://localhost:3100
+      - PUBLIC_GOOGLE_CLIENT_ID=
+      - TZ=$TZ
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.resume.service=resume
+      - "traefik.http.routers.resume.rule=Host(`${PUBLIC_URL}`)"
+      - traefik.http.services.resume.loadbalancer.server.port=3300
+
+volumes:
+  pgdata:
