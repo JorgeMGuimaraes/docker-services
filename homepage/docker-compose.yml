@@ -15,10 +15,15 @@ services:
     volumes:
       - ./config:/app/config
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - web
     env_file: .env
-    network_mode: host
     labels:
       - traefik.enable=true
       - traefik.http.routers.homepage.service=homepage
       - "traefik.http.routers.homepage.rule=Host(`krypton.viper`)"
       - traefik.http.services.homepage.loadbalancer.server.port=3000
+
+networks:
+  web:
+    external: true
