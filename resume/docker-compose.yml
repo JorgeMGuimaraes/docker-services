@@ -5,17 +5,14 @@
 # https://github.com/AmruthPillai/Reactive-Resume
 # Compose based on Marius Hosting: https://mariushosting.com/how-to-install-reactive-resume-v3-on-your-synology-nas/
 #----------------------------------------------------------------------------#
-version: "3.9"
+version: "3.8"
+
 services:
   postgres:
     image: postgres:alpine
-    container_name: postgres
-    hostname: postgres
     restart: always
     ports:
       - 5432:5432
-    expose:
-      - 5432
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -24,45 +21,38 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
-    network_mode: host
-    env_file: .env
     environment:
-      - POSTGRES_DB=$POSTGRES_DB
-      - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
 
   server:
     image: amruthpillai/reactive-resume:server-latest
     # build:
     #   context: .
     #   dockerfile: ./server/Dockerfile
-    container_name: server
     restart: always
     ports:
       - 3100:3100
-    expose:
-      - 3100
     depends_on:
       - postgres
-    env_file: .env
-    network_mode: host
     environment:
-      - PUBLIC_URL=$PUBLIC_URL
+      - PUBLIC_URL=http://localhost:3000
       - PUBLIC_SERVER_URL=http://localhost:3100
       - PUBLIC_GOOGLE_CLIENT_ID=
-      - POSTGRES_DB=$POSTGRES_DB
-      - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      - SECRET_KEY=$SECRET_KEY
-      - POSTGRES_HOST=$POSTGRES_HOST
-      - POSTGRES_PORT=$POSTGRES_PORT
-      - POSTGRES_SSL_CERT=$POSTGRES_SSL_CERT
-      - JWT_SECRET=$JWT_SECRET
-      - JWT_EXPIRY_TIME=$JWT_EXPIRY_TIME
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - SECRET_KEY=change-me-to-something-secure
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_SSL_CERT=
+      - JWT_SECRET=change-me-to-something-secure
+      - JWT_EXPIRY_TIME=604800
       - GOOGLE_CLIENT_SECRET=
       - GOOGLE_API_KEY=
-      - MAIL_FROM_NAME=$MAIL_FROM_NAME
-      - MAIL_FROM_EMAIL=$MAIL_FROM_EMAIL
+      - MAIL_FROM_NAME=Reactive Resume
+      - MAIL_FROM_EMAIL=noreply@rxresu.me
       - MAIL_HOST=
       - MAIL_PORT=
       - MAIL_USERNAME=
@@ -73,35 +63,22 @@ services:
       - STORAGE_URL_PREFIX=
       - STORAGE_ACCESS_KEY=
       - STORAGE_SECRET_KEY=
-      - PDF_DELETION_TIME=$PDF_DELETION_TIME
-      - TZ=$TZ
+      - PDF_DELETION_TIME=
 
   client:
     image: amruthpillai/reactive-resume:client-latest
     # build:
     #   context: .
     #   dockerfile: ./client/Dockerfile
-    container_name: client
     restart: always
-    # ports:
-    #   - 9000:3000
-    # expose:
-    #   - 9000
+    ports:
+      - 3000:3000
     depends_on:
       - server
-    env_file: .env
-    network_mode: host
     environment:
-      - PORT=3300
-      - PUBLIC_URL=$PUBLIC_URL
+      - PUBLIC_URL=http://localhost:3000
       - PUBLIC_SERVER_URL=http://localhost:3100
       - PUBLIC_GOOGLE_CLIENT_ID=
-      - TZ=$TZ
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.resume.service=resume
-      - "traefik.http.routers.resume.rule=Host(`${PUBLIC_URL}`)"
-      - traefik.http.services.resume.loadbalancer.server.port=3300
 
 volumes:
   pgdata:
